@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    text-align: center;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+}
+
+.title {
+    font-size: 40px;
+    font-weight: 200;
+}
+
+.game-board {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-gap: 10px;
+    margin-top: 20px;
+}
+
+.cell {
+    width: 100px;
+    height: 100px;
+    font-size: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    background-color: #ddd;
+}
+
+.message {
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+.reset-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.reset-button:hover {
+    background-color: #0056b3;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Tic-Tac-Toe</h1>
+        <div class="game-board" id="board">
+            <!--  game board -->
+        </div>
+        <div class="message" id="message">
+            <!-- Game display -->
+        </div>
+        <button class="reset-button" id="reset-button">Reset</button>
+    </div>
+    <script>
+        const board = document.getElementById('board');
+const message = document.getElementById('message');
+const resetButton = document.getElementById('reset-button');
+
+let currentPlayer = 'X';
+let boardState = ['', '', '', '', '', '', '', '', ''];
+let gameActive = true;
+
+// Function to handle cell clicks
+function handleCellClick(index) {
+    if (!gameActive || boardState[index] !== '') return;
+
+    boardState[index] = currentPlayer;
+    updateCell(index);
+
+    if (checkWin()) {
+        endGame(`Player ${currentPlayer} wins!`);
+    } else if (boardState.every((cell) => cell !== '')) {
+        endGame("It's a draw!");
+    } else {
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        message.textContent = `Player ${currentPlayer}'s turn`;
+
+        if (currentPlayer === 'O') {
+            setTimeout(makeComputerMove, 1000); // Delay computer move for 1 second
+        }
+    }
+}
+
+// Function to update the cell UI
+function updateCell(index) {
+    const cell = document.createElement('div');
+    cell.classList.add('cell');
+    cell.textContent = currentPlayer;
+    board.children[index].appendChild(cell);
+}
+
+// Function to check for a win
+function checkWin() {
+    const winPatterns = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+    ];
+
+    return winPatterns.some((pattern) => {
+        const [a, b, c] = pattern;
+        return boardState[a] !== '' && boardState[a] === boardState[b] && boardState[a] === boardState[c];
+    });
+}
+
+// Function to end the game
+function endGame(result) {
+    gameActive = false;
+    message.textContent = result;
+}
+
+// Function to reset the game
+function resetGame() {
+    currentPlayer = 'X';
+    boardState = ['', '', '', '', '', '', '', '', ''];
+    gameActive = true;
+    message.textContent = `Player ${currentPlayer}'s turn`;
+
+    // Clear the board
+    board.innerHTML = '';
+    for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.addEventListener('click', () => handleCellClick(i));
+        board.appendChild(cell);
+    }
+
+    if (currentPlayer === 'O') {
+        setTimeout(makeComputerMove, 1000); // Delay computer's first move
+    }
+}
+
+// Function to make a random computer move
+function makeComputerMove() {
+    if (!gameActive) return;
+
+    const availableMoves = [];
+    for (let i = 0; i < 9; i++) {
+        if (boardState[i] === '') {
+            availableMoves.push(i);
+        }
+    }
+
+    if (availableMoves.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableMoves.length);
+        const computerMove = availableMoves[randomIndex];
+        boardState[computerMove] = 'O';
+        updateCell(computerMove);
+
+        if (checkWin()) {
+            endGame('Computer wins!');
+        } else if (boardState.every((cell) => cell !== '')) {
+            endGame("It's a draw!");
+        } else {
+            currentPlayer = 'X';
+            message.textContent = `Player ${currentPlayer}'s turn`;
+        }
+    }
+}
+
+// Event listeners
+resetButton.addEventListener('click', resetGame);
+resetGame();
+
+
+    </script>
+</body>
+</html>
